@@ -13,6 +13,9 @@ class ExcelService:
         df1 = pd.read_excel(arquivo1)
         df2 = pd.read_excel(arquivo2)
 
+        df1['Nome'] = df1['Nome'].fillna('indefinido')
+        df2['Nome'] = df2['Nome'].fillna('indefinido')
+
         # Comparar as tabelas
         df1['Código'] = df1['Código'].fillna(self.random_number())
         df1['Valor'] = df1['Valor'].fillna(0)

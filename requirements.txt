@@ -6,3 +6,4 @@ pdf2image
 pillow
 pywin32
 openpyxl
+xrld
