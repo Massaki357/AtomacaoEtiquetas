@@ -54,7 +54,7 @@ def imprimir_excel():
             for i in range(quantidade):
                 imprimir_imagem(name_img, path3col, printer)
 
-            calc_sleep = (quantidade * 1.2)+5
+            calc_sleep = (quantidade * 1.3)+5
             time.sleep(calc_sleep)
         else:
             pass
@@ -102,7 +102,7 @@ def imprimir_big():
             
             for i in range(quantidade):
                 imprimir_2cols(name_img, path2col, printer)
-            calc_sleep = (quantidade * 1.2)+5
+            calc_sleep = (quantidade * 1.5)+5
             time.sleep(calc_sleep)
         else:
             pass
