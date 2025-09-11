@@ -133,7 +133,7 @@ def imprimir_one():
         name_img = gerar_imagem_2col(nome, preco, path2col)
         
         for i in range(quantidade):
-            imprimir_2cols(name_img, path2col)
+            imprimir_2cols(name_img, path2col, printer)
             
     elif col == '3':
         quantidade = math.ceil(int(data.get('qtd')) / 3)  # arredonda para cima
