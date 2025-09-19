@@ -15,7 +15,7 @@ def gerar_codigo():
     aleatorio = f"{random.randint(0,9)}{random.randint(0,9)}"
     return f"{dia}{aleatorio}{mes}"
 
-def gerar_imagem_3col(name_product, price, path):
+def gerar_imagem_3col(name_product, price, path, noCode=False):
     # -------------------------------
     # Dimensões da etiqueta
     # -------------------------------
@@ -30,6 +30,8 @@ def gerar_imagem_3col(name_product, price, path):
     poppler_path = os.path.join(base_path, 'poppler', 'bin')
 
     code_product = gerar_codigo()
+    if noCode == True:
+        code_product = ""
     largura = 34 * mm
     altura = 22 * mm
 
@@ -46,7 +48,10 @@ def gerar_imagem_3col(name_product, price, path):
     # -------------------------------
     # Nome do produto (30% da altura)
     # -------------------------------
+    
     produto = f"{name_product}-{code_product}"
+    if code_product == "":
+        produto = name_product
     altura_nome = altura * 0.3
     margem = 1 * mm
     largura_max = largura - 2 * margem
@@ -132,7 +137,7 @@ def gerar_imagem_3col(name_product, price, path):
     images[0].save(output_path, "PNG")
     return f"{name_product}-{code_product}"
 
-def gerar_imagem_2col(name_product, price, path):
+def gerar_imagem_2col(name_product, price, path, noCode=False):
 
     if getattr(sys, 'frozen', False):
         base_path = sys._MEIPASS
@@ -145,6 +150,8 @@ def gerar_imagem_2col(name_product, price, path):
     # Dimensões da etiqueta
     # -------------------------------
     code_product = gerar_codigo()
+    if noCode == True:
+        code_product = ""
     largura = 50 * mm
     altura = 31 * mm
 
@@ -162,6 +169,8 @@ def gerar_imagem_2col(name_product, price, path):
     # Nome do produto (30% da altura)
     # -------------------------------
     produto = f"{name_product}-{code_product}"
+    if code_product == "":
+        produto = name_product
     altura_nome = altura * 0.3
     margem = 1 * mm
     largura_max = largura - 2 * margem

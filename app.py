@@ -22,6 +22,8 @@ def imprimir_excel():
     arquivo = request.files['excel']
     sheet = request.form.get('sheet')
     printer = request.form.get('printer')
+    noCode = request.form.get('code')
+    noCode = bool(noCode)
     
     if not arquivo.filename.endswith('.xlsx'):
         return "Arquivo enviado não é um arquivo Excel válido", 400
@@ -49,7 +51,7 @@ def imprimir_excel():
 
             os.makedirs(f"./etiquetas/{path3col}", exist_ok=True)
 
-            name_img = gerar_imagem_3col(nome, preco, path3col)
+            name_img = gerar_imagem_3col(nome, preco, path3col, noCode)
 
             for i in range(quantidade):
                 imprimir_imagem(name_img, path3col, printer)
@@ -70,7 +72,8 @@ def imprimir_big():
     arquivo = request.files['excel']
     sheet = request.form.get('sheet')
     printer = request.form.get('printer')
-    
+    noCode = request.form.get('code')
+    noCode = bool(noCode)
     if not arquivo.filename.endswith('.xlsx'):
         return "Arquivo enviado não é um arquivo Excel válido", 400
 
@@ -98,7 +101,7 @@ def imprimir_big():
 
             os.makedirs(f"./etiquetas/{path2col}", exist_ok=True)  # cria o diretório se não existir
 
-            name_img = gerar_imagem_2col(nome, preco, path2col)
+            name_img = gerar_imagem_2col(nome, preco, path2col, noCode)
             
             for i in range(quantidade):
                 imprimir_2cols(name_img, path2col, printer)
@@ -122,6 +125,7 @@ def imprimir_one():
     data = request.get_json()
     nome = data.get('name').upper()
     printer = data.get('printer')
+    noCode = bool(data.get('code'))
 
     rawPrice = str(data.get('price').replace(',', '.').replace('R$', ''))
     preco = float(rawPrice)
@@ -130,7 +134,7 @@ def imprimir_one():
     if col == '2':
         quantidade = math.ceil(int(data.get('qtd')) / 2)  # arredonda para cima
         os.makedirs(f"./etiquetas/{path2col}", exist_ok=True)  # cria o diretório se não existir
-        name_img = gerar_imagem_2col(nome, preco, path2col)
+        name_img = gerar_imagem_2col(nome, preco, path2col, noCode)
         
         for i in range(quantidade):
             imprimir_2cols(name_img, path2col, printer)
@@ -138,7 +142,7 @@ def imprimir_one():
     elif col == '3':
         quantidade = math.ceil(int(data.get('qtd')) / 3)  # arredonda para cima
         os.makedirs(f"./etiquetas/{path3col}", exist_ok=True)  # cria o diretório se não existir
-        name_img = gerar_imagem_3col(nome, preco, path3col)
+        name_img = gerar_imagem_3col(nome, preco, path3col, noCode)
         
         for i in range(quantidade):
             imprimir_imagem(name_img, path3col, printer)
