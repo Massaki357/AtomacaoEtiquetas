@@ -57,17 +57,43 @@ class ExcelService:
 
         return apenasDiferencas[['Nome_antigo','Código', 'Valor_antigo', 'Valor_novo']]
     
+    
+
     def two_excel(file1, file2, output_path):
         # Lendo os arquivos Excel
         df1 = pd.read_excel(file1)
         df2 = pd.read_excel(file2)
 
-        merged_df = pd.merge(df1, df2, on='Nome', how='left')
+        merged_df = pd.merge(df1, df2, on='Código', how='left')
 
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        # Extrai o código base (antes do '-')
+        merged_df['CodigoBase'] = merged_df['Código'].astype(str).str.split('-').str[0]
 
-        merged_df.to_excel(output_path+'\merged_output.xlsx', index=False)
+        # Usa o nome do primeiro excel (df1), que após o merge vira 'Nome_x'
+        if 'Nome_x' in merged_df.columns:
+            merged_df['Nome'] = merged_df['Nome_x']
+        elif 'Nome' in merged_df.columns:
+            merged_df['Nome'] = merged_df['Nome']
+        else:
+            merged_df['Nome'] = ''
 
-        print('Arquivos mesclados com sucesso e salvos em:', output_path+'\merged_output.xlsx')
+        # Agrupa pelo código base, soma quantidade, pega o maior valor e o primeiro nome
+        result_df = merged_df.groupby('CodigoBase').agg({
+            'Nome': 'first',
+            'Quantidade': 'sum',
+            'Valor': 'max',
+        }).reset_index()
 
-        return merged_df
+        # Remove linhas onde quantidade é igual a 0
+        result_df = result_df[result_df['Quantidade'] != 0]
+
+        # Cria o diretório de saída se não existir
+        if not os.path.exists(output_path):
+            os.makedirs(output_path, exist_ok=True)
+
+        output_file = os.path.join(output_path, 'pedido-e-venda.xlsx')
+        result_df.to_excel(output_file, index=False)
+
+        print('Arquivos mesclados com sucesso e salvos em:', output_file)
+
+        return result_df
