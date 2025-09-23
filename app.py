@@ -69,6 +69,7 @@ def imprimir_big():
     if 'excel' not in request.files:
         return "Nenhum arquivo Excel enviado", 400
 
+    double = True
     arquivo = request.files['excel']
     sheet = request.form.get('sheet')
     printer = request.form.get('printer')
@@ -92,6 +93,8 @@ def imprimir_big():
         rawPrice = str(row['Valor']).replace(',', '.').replace('R$', "")
         preco = float(rawPrice)
         quantidade = math.ceil(int(row['Quantidade']) / 2)  # arredonda para cima
+        if double == True:
+            quantidade = quantidade * 2  # dobra a quantidade para etiquetas maiores
         if 'Abreviação' in df.columns:
             if row['Abreviação'] is not None:
                 if not pd.isna(row['Abreviação']) and str(row['Abreviação']).strip() != '':

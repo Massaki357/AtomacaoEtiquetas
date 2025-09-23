@@ -56,3 +56,18 @@ class ExcelService:
         apenasDiferencas[['Nome_antigo','Código', 'Valor_antigo', 'Valor_novo']].to_excel(diferencas_path, index=False)
 
         return apenasDiferencas[['Nome_antigo','Código', 'Valor_antigo', 'Valor_novo']]
+    
+    def two_excel(file1, file2, output_path):
+        # Lendo os arquivos Excel
+        df1 = pd.read_excel(file1)
+        df2 = pd.read_excel(file2)
+
+        merged_df = pd.merge(df1, df2, on='Nome', how='left')
+
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+        merged_df.to_excel(output_path+'\merged_output.xlsx', index=False)
+
+        print('Arquivos mesclados com sucesso e salvos em:', output_path+'\merged_output.xlsx')
+
+        return merged_df
