@@ -24,6 +24,7 @@ def imprimir_excel():
     printer = request.form.get('printer')
     noCode = request.form.get('code')
     noCode = bool(noCode)
+    double = bool(request.form.get('double'))
     
     if not arquivo.filename.endswith('.xlsx'):
         return "Arquivo enviado não é um arquivo Excel válido", 400
@@ -43,6 +44,8 @@ def imprimir_excel():
         rawPrice = str(row['Valor']).replace(',', '.').replace('R$', '')
         preco = float(rawPrice)
         quantidade = math.ceil(int(row['Quantidade']) / 3) 
+        if double == True:
+            quantidade = quantidade * 2  # dobra a quantidade para etiquetas maiores
         if 'Abreviação' in df.columns:
             if not pd.isna(row['Abreviação']) and str(row['Abreviação']).strip() != '':
                 nome = str(row['Abreviação']).upper()
@@ -69,12 +72,13 @@ def imprimir_big():
     if 'excel' not in request.files:
         return "Nenhum arquivo Excel enviado", 400
 
-    double = True
     arquivo = request.files['excel']
     sheet = request.form.get('sheet')
     printer = request.form.get('printer')
     noCode = request.form.get('code')
     noCode = bool(noCode)
+    double = bool(request.form.get('double'))
+
     if not arquivo.filename.endswith('.xlsx'):
         return "Arquivo enviado não é um arquivo Excel válido", 400
 

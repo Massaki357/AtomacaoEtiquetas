@@ -59,7 +59,7 @@ class ExcelService:
     
     
 
-    def two_excel(file1, file2, output_path):
+    def two_excel(self ,file1, file2, output_path, code):
         # Lendo os arquivos Excel
         df1 = pd.read_excel(file1)
         df2 = pd.read_excel(file2)
@@ -67,7 +67,10 @@ class ExcelService:
         merged_df = pd.merge(df1, df2, on='Código', how='left')
 
         # Extrai o código base (antes do '-')
-        merged_df['CodigoBase'] = merged_df['Código'].astype(str).str.split('-').str[0]
+        if merged_df['Código'].astype(str).str.contains('-').any():
+            merged_df['CodigoBase'] = merged_df['Código'].astype(str).str.split('-').str[0]
+        else:
+            merged_df['CodigoBase'] = merged_df['Código']
 
         # Usa o nome do primeiro excel (df1), que após o merge vira 'Nome_x'
         if 'Nome_x' in merged_df.columns:
@@ -76,6 +79,9 @@ class ExcelService:
             merged_df['Nome'] = merged_df['Nome']
         else:
             merged_df['Nome'] = ''
+
+        if code:
+            merged_df['Nome'] = merged_df['Nome'].astype(str) + ' - ' + merged_df['CodigoBase'].astype(str).str.split('.').str[0]
 
         # Agrupa pelo código base, soma quantidade, pega o maior valor e o primeiro nome
         result_df = merged_df.groupby('CodigoBase').agg({
@@ -90,8 +96,8 @@ class ExcelService:
         # Cria o diretório de saída se não existir
         if not os.path.exists(output_path):
             os.makedirs(output_path, exist_ok=True)
-
-        output_file = os.path.join(output_path, 'pedido-e-venda.xlsx')
+        dateNow = datetime.now().strftime("%d-%m-%y")
+        output_file = os.path.join(output_path, 'pedido-e-venda-'+dateNow+'.xlsx')
         result_df.to_excel(output_file, index=False)
 
         print('Arquivos mesclados com sucesso e salvos em:', output_file)

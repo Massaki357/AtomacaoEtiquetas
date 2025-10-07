@@ -17,16 +17,17 @@ def comparar_tabelas():
         print(f"Erro ao comparar tabelas: {e}")
         return jsonify({'error': str(e)}), 500
     
-@excel_bp.route('/togheter', methods=['POST'])
+@excel_bp.route('/together', methods=['POST'])
 def join_excel():
     try:
         service = ExcelService()
-        data_body = request.get_json()
-        excel1 = data_body.get('excel1')
-        excel2 = data_body.get('excel2')
+        excel1 = request.files['pedido']
+        excel2 = request.files['venda']
+        code = bool(request.form.get('withCode'))
+        print(code)
         if not excel1 or not excel2:
             return jsonify({'error': 'Dois arquivos Excel são necessários.'}), 400
-        resultado = service.join_excel(excel1, excel2, './resultado-tabelas')
+        resultado = service.two_excel(excel1, excel2, './resultado-tabelas', code)
         return jsonify({'message': 'Sucesso em juntar as tabelas', 'result': resultado}), 200
     except Exception as e:
         print(f"Erro no serviço de teste: {e}")
