@@ -9,6 +9,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from src.controllers.printerController import printer_bp
 from src.controllers.excelController import excel_bp
+from src.controllers.configController import config_bp
 
 app = Flask(__name__)
 CORS(app)
@@ -158,6 +159,8 @@ def imprimir_one():
 
 app.register_blueprint(printer_bp, url_prefix='/printers')
 app.register_blueprint(excel_bp, url_prefix='/excel')
+app.register_blueprint(config_bp, url_prefix='/config')
+
 
 if __name__ == "__main__":
     app.run(debug=True)
