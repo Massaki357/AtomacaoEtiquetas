@@ -37,8 +37,11 @@ class ExcelService:
         comparacaoDf = pd.merge(df1, df2, on="Código", suffixes=('_antigo', '_novo'))
         
 
-        apenasDiferencas = comparacaoDf[comparacaoDf['Valor_antigo'] != comparacaoDf['Valor_novo']]
-
+        apenasDiferencas = comparacaoDf[comparacaoDf['Valor_antigo'] != comparacaoDf['Valor_novo']].copy()
+        apenasDiferencas['Barato'] = apenasDiferencas.apply(
+            lambda row: 'x' if row['Valor_novo'] < row['Valor_antigo'] else '', axis=1
+        )
+        apenasDiferencas = apenasDiferencas[['Nome_antigo','Código', 'Valor_antigo', 'Valor_novo', 'Barato']]
         # Criar pasta com timestamp para salvar os arquivos
         base_dir = os.getcwd()
         excel_dir = os.path.join(base_dir, 'excel')
@@ -53,9 +56,9 @@ class ExcelService:
         tabela_completa_path = os.path.join(save_dir, 'COMPLETO_'+name_file+'.xlsx')
         diferencas_path = os.path.join(save_dir, f"DIFERANÇAS_{name_file}.xlsx")
         tabela_atualizada.to_excel(tabela_completa_path, index=False)
-        apenasDiferencas[['Nome_antigo','Código', 'Valor_antigo', 'Valor_novo']].to_excel(diferencas_path, index=False)
+        apenasDiferencas[['Nome_antigo','Código', 'Valor_antigo', 'Valor_novo', 'Barato']].to_excel(diferencas_path, index=False)
 
-        return apenasDiferencas[['Nome_antigo','Código', 'Valor_antigo', 'Valor_novo']]
+        return apenasDiferencas[['Nome_antigo','Código', 'Valor_antigo', 'Valor_novo', 'Barato']]
     
     
 
