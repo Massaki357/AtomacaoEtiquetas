@@ -255,3 +255,265 @@ def gerar_imagem_2col(name_product, price, path, noCode=False):
     output_path = f"./etiquetas/{path}/{name_product}-{code_product}.png"
     images[0].save(output_path, "PNG")
     return f"{name_product}-{code_product}"
+
+def gerar_imagem_3linhas_planta(nome_planta, preco_un, preco_caixa, itens_caixa, path):
+
+    print(nome_planta)
+
+    # -------------------------------
+    # Caminho do poppler
+    # -------------------------------
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+
+    poppler_path = os.path.join(base_path, 'poppler', 'bin')
+
+    # -------------------------------
+    # Dimensões da etiqueta
+    # -------------------------------
+    largura = 34 * mm
+    altura = 22 * mm
+
+    pdf_buffer = BytesIO()
+    c = canvas.Canvas(pdf_buffer, pagesize=(largura, altura))
+
+    x = 0
+    y = 0
+
+    # borda
+    c.rect(x, y, largura, altura)
+
+    margem = 0.7 * mm
+    largura_util = largura - (2 * margem)
+
+    # -------------------------------
+    # Textos
+    # -------------------------------
+    nome = nome_planta.upper()
+    texto_un = f"UN: R${preco_un:.2f}".replace(".", ",")
+    texto_cx = f"CX/{itens_caixa}: R${preco_caixa:.2f}".replace(".", ",")
+
+    # -------------------------------
+    # NOME
+    # -------------------------------
+    fonte_nome = "Helvetica-Bold"
+    tamanho_nome = 8
+
+    c.setFont(fonte_nome, tamanho_nome)
+    largura_nome = c.stringWidth(nome, fonte_nome, tamanho_nome)
+
+    while largura_nome > largura_util and tamanho_nome > 5:
+        tamanho_nome -= 0.5
+        largura_nome = c.stringWidth(nome, fonte_nome, tamanho_nome)
+
+    x_nome = x + (largura - largura_nome) / 2
+    y_nome = y + altura - 3.8 * mm   # sobe o nome e reduz espaço vazio em cima
+    c.setFont(fonte_nome, tamanho_nome)
+    c.drawString(x_nome, y_nome, nome)
+
+    # -------------------------------
+    # VALORES
+    # -------------------------------
+    fonte_preco = "Helvetica-Bold"
+    tamanho_base_preco = 8.5
+
+    c.setFont(fonte_preco, tamanho_base_preco)
+
+    # área horizontal útil
+    largura_preco = largura_util
+
+    # aqui controla o "esticamento" vertical
+    escala_vertical = 2.15
+
+    # aqui controla a altura base visual dos números
+    altura_visual_preco = 4.6 * mm
+
+    # posições Y dos preços
+    # subi os valores e aumentei a separação entre eles
+    y_un = y + 9.6 * mm
+    y_cx = y + 1.8 * mm
+
+    # -------- UN --------
+    largura_texto_un = c.stringWidth(texto_un, fonte_preco, tamanho_base_preco)
+    scale_x_un = largura_preco / largura_texto_un
+    scale_y_un = (altura_visual_preco / tamanho_base_preco) * escala_vertical
+
+    if scale_x_un > 1.95:
+        scale_x_un = 1.95
+
+    c.saveState()
+    c.translate(x + margem, y_un)
+    c.scale(scale_x_un, scale_y_un)
+    c.drawString(0, 0, texto_un)
+    c.restoreState()
+
+    # -------- CX --------
+    largura_texto_cx = c.stringWidth(texto_cx, fonte_preco, tamanho_base_preco)
+    scale_x_cx = largura_preco / largura_texto_cx
+    scale_y_cx = (altura_visual_preco / tamanho_base_preco) * escala_vertical
+
+    if scale_x_cx > 1.95:
+        scale_x_cx = 1.95
+
+    c.saveState()
+    c.translate(x + margem, y_cx)
+    c.scale(scale_x_cx, scale_y_cx)
+    c.drawString(0, 0, texto_cx)
+    c.restoreState()
+
+    # -------------------------------
+    # Finaliza PDF
+    # -------------------------------
+    c.save()
+    pdf_buffer.seek(0)
+
+    # -------------------------------
+    # Converte para PNG
+    # -------------------------------
+    images = convert_from_bytes(
+        pdf_buffer.getvalue(),
+        dpi=203,
+        poppler_path=poppler_path
+    )
+
+    nome_arquivo = nome_planta.replace("/", ".").upper()
+
+    output_dir = f"./etiquetas/{path}"
+    os.makedirs(output_dir, exist_ok=True)
+
+    output_path = f"{output_dir}/{nome_arquivo}.png"
+    images[0].save(output_path, "PNG")
+
+    return f"{nome_arquivo}.png"
+
+def gerar_imagem_2col_planta(nome_planta, preco_un, preco_caixa, itens_caixa, path):
+
+    print(nome_planta)
+
+    # -------------------------------
+    # Caminho do poppler
+    # -------------------------------
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+
+    poppler_path = os.path.join(base_path, 'poppler', 'bin')
+
+    # -------------------------------
+    # Dimensões da etiqueta 2 colunas
+    # -------------------------------
+    largura = 50 * mm
+    altura = 31 * mm
+
+    pdf_buffer = BytesIO()
+    c = canvas.Canvas(pdf_buffer, pagesize=(largura, altura))
+
+    x = 0
+    y = 0
+
+    # borda
+    c.rect(x, y, largura, altura)
+
+    margem = 0.7 * mm
+    largura_util = largura - (2 * margem)
+
+    # -------------------------------
+    # Textos
+    # -------------------------------
+    nome = nome_planta.upper()
+    texto_un = f"UN: R${preco_un:.2f}".replace(".", ",")
+    texto_cx = f"CX/{itens_caixa}: R${preco_caixa:.2f}".replace(".", ",")
+
+    # -------------------------------
+    # NOME
+    # -------------------------------
+    fonte_nome = "Helvetica-Bold"
+    tamanho_nome = 11
+
+    c.setFont(fonte_nome, tamanho_nome)
+    largura_nome = c.stringWidth(nome, fonte_nome, tamanho_nome)
+
+    while largura_nome > largura_util and tamanho_nome > 6:
+        tamanho_nome -= 0.5
+        largura_nome = c.stringWidth(nome, fonte_nome, tamanho_nome)
+
+    x_nome = x + (largura - largura_nome) / 2
+    y_nome = y + altura - 4.5 * mm
+    c.setFont(fonte_nome, tamanho_nome)
+    c.drawString(x_nome, y_nome, nome)
+
+    # -------------------------------
+    # VALORES
+    # -------------------------------
+    fonte_preco = "Helvetica-Bold"
+    tamanho_base_preco = 11
+
+    c.setFont(fonte_preco, tamanho_base_preco)
+
+    largura_preco = largura_util
+
+    # controla o alongamento vertical
+    escala_vertical = 2.2
+
+    # controla a altura visual base
+    altura_visual_preco = 6.0 * mm
+
+    # posições verticais
+    y_un = y + 13.5 * mm
+    y_cx = y + 3.0 * mm
+
+    # -------- UN --------
+    largura_texto_un = c.stringWidth(texto_un, fonte_preco, tamanho_base_preco)
+    scale_x_un = largura_preco / largura_texto_un
+    scale_y_un = (altura_visual_preco / tamanho_base_preco) * escala_vertical
+
+    if scale_x_un > 2.0:
+        scale_x_un = 2.0
+
+    c.saveState()
+    c.translate(x + margem, y_un)
+    c.scale(scale_x_un, scale_y_un)
+    c.drawString(0, 0, texto_un)
+    c.restoreState()
+
+    # -------- CX --------
+    largura_texto_cx = c.stringWidth(texto_cx, fonte_preco, tamanho_base_preco)
+    scale_x_cx = largura_preco / largura_texto_cx
+    scale_y_cx = (altura_visual_preco / tamanho_base_preco) * escala_vertical
+
+    if scale_x_cx > 2.0:
+        scale_x_cx = 2.0
+
+    c.saveState()
+    c.translate(x + margem, y_cx)
+    c.scale(scale_x_cx, scale_y_cx)
+    c.drawString(0, 0, texto_cx)
+    c.restoreState()
+
+    # -------------------------------
+    # Finaliza PDF
+    # -------------------------------
+    c.save()
+    pdf_buffer.seek(0)
+
+    # -------------------------------
+    # Converte para PNG
+    # -------------------------------
+    images = convert_from_bytes(
+        pdf_buffer.getvalue(),
+        dpi=203,
+        poppler_path=poppler_path
+    )
+
+    nome_arquivo = nome_planta.replace("/", ".").upper()
+
+    output_dir = f"./etiquetas/{path}"
+    os.makedirs(output_dir, exist_ok=True)
+
+    output_path = f"{output_dir}/{nome_arquivo}.png"
+    images[0].save(output_path, "PNG")
+
+    return f"{nome_arquivo}.png"
