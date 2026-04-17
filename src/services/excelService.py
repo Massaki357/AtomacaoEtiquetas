@@ -63,15 +63,20 @@ class ExcelService:
     
 
     def two_excel(self ,file1, file2, output_path, code):
+        agrupar = False
+
         # Lendo os arquivos Excel
         df1 = pd.read_excel(file1)
         df2 = pd.read_excel(file2)
 
         merged_df = pd.merge(df1, df2, on='Código', how='left')
 
-        # Extrai o código base (antes do '-')
-        if merged_df['Código'].astype(str).str.contains('-').any():
-            merged_df['CodigoBase'] = merged_df['Código'].astype(str).str.split('-').str[0]
+        if agrupar == True:
+            # Extrai o código base (antes do '-')
+            if merged_df['Código'].astype(str).str.contains('-').any():
+                merged_df['CodigoBase'] = merged_df['Código'].astype(str).str.split('-').str[0]
+            else:
+                merged_df['CodigoBase'] = merged_df['Código']
         else:
             merged_df['CodigoBase'] = merged_df['Código']
 
